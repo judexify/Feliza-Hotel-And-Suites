@@ -4,8 +4,144 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Feliza Hotel Suites</title>
-    <link rel="stylesheet" href="style.css" />
+
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="img/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="img/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="img/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!-- Google Fonts — preconnect + async load -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Jost:wght@300;400;600&display=swap"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Jost:wght@300;400;600&display=swap"
+      />
+    </noscript>
+
+    <!-- Font Awesome — async load -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      />
+    </noscript>
+
+    <!-- Local CSS — preload critical, defer queries -->
+    <link
+      rel="preload"
+      as="style"
+      href="style.css"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript><link rel="stylesheet" href="style.css" /></noscript>
+
+    <link
+      rel="preload"
+      as="style"
+      href="query.css"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
+    />
+    <noscript><link rel="stylesheet" href="query.css" /></noscript>
+
     <script src="script.js" defer></script>
   </head>
-  <body></body>
+  <body>
+    <header class="navbar">
+      <div class="navbar__logo">
+        <img src="img/Feliza-Logo.png" alt="Feliza Hotel & Suites" />
+      </div>
+      <nav class="navbar__tabs">
+        <button class="tab-btn active" data-tab="food">FOOD</button>
+        <button class="tab-btn" data-tab="drinks">DRINKS</button>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="hero__slides">
+        <div class="hero__slide active" data-type="brand">
+          <img
+            src="img/logo.jpeg"
+            alt="Feliza Hotel & Suites"
+            class="hero__brand-logo"
+          />
+        </div>
+      </div>
+
+      <div class="hero__overlay"></div>
+
+      <div class="hero__content" id="heroContent">
+        <h1 class="hero__title">Feliza</h1>
+        <p class="hero__subtitle">Hotel & Suites</p>
+        <div class="hero__divider">
+          <i class="fa-solid fa-utensils"></i>
+          <i class="fa-solid fa-star"></i>
+          <i class="fa-solid fa-utensils fa-flip-horizontal"></i>
+        </div>
+        <p class="hero__tagline">Restaurant & Bar Menu</p>
+      </div>
+
+      <div class="hero__dots" id="heroDots"></div>
+    </section>
+    <div class="pill-bar" id="pillBar">
+      <!-- INJECTED FROM JavaScript -->
+    </div>
+    <main class="menu-body" id="menuBody">
+      <!-- INJECTED FROM JavaScript -->
+    </main>
+    <footer class="footer">
+      <div class="footer-logo-box">
+        <img
+          src="img/Feliza-Logo.png"
+          alt="Feliza Hotel & Suites"
+          class="footer__logo"
+        />
+      </div>
+      <p class="footer__copy">
+        &copy; <span id="footerYear"></span> Feliza Hotel & Suites. All rights
+        reserved.
+      </p>
+      <button class="back-to-top" id="backToTop">
+        <i class="fa-solid fa-chevron-up"></i>
+      </button>
+    </footer>
+  </body>
 </html>
