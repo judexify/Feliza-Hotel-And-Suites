@@ -342,6 +342,15 @@ body {
   text-overflow: ellipsis;
   max-width: 60%;
 }
+.menu-item__name.expandable {
+  cursor: pointer;
+}
+
+.menu-item__name.expandable.expanded {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+}
 
 .menu-item__dots {
   flex: 1;

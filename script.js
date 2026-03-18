@@ -5,7 +5,6 @@ const heroContent = document.getElementById("heroContent");
 const pillBar = document.getElementById("pillBar");
 const tabs = document.querySelectorAll(".tab-btn");
 
-// CAROUSEL
 const carouselImages = [
   "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400&q=80",
   "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400&q=80",
@@ -51,7 +50,6 @@ function goToSlide(index) {
 dots.forEach((dot, i) => dot.addEventListener("click", () => goToSlide(i)));
 setInterval(() => goToSlide(current + 1), 4500);
 
-// UTILS
 function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
@@ -239,6 +237,7 @@ const sectionObserver = new IntersectionObserver(
   { threshold: 0.1 },
 );
 
+// MENU RENDER
 function renderMenu(tab) {
   const menuBody = document.getElementById("menuBody");
   menuBody.innerHTML = "";
@@ -260,11 +259,35 @@ function renderMenu(tab) {
       section.items.forEach((item) => {
         const row = document.createElement("div");
         row.className = "menu-item";
-        row.innerHTML = `
-          <span class="menu-item__name">${item.name}</span>
-          <span class="menu-item__dots"></span>
-          <span class="menu-item__price">${formatPrice(item.price)}</span>
-        `;
+
+        const nameEl = document.createElement("span");
+        nameEl.className = "menu-item__name";
+        nameEl.textContent = item.name;
+
+        const dotsEl = document.createElement("span");
+        dotsEl.className = "menu-item__dots";
+
+        const priceEl = document.createElement("span");
+        priceEl.className = "menu-item__price";
+        priceEl.textContent = formatPrice(item.price);
+
+        row.appendChild(nameEl);
+        row.appendChild(dotsEl);
+        row.appendChild(priceEl);
+
+        nameEl.addEventListener("click", () => {
+          const isTruncated = nameEl.scrollWidth > nameEl.clientWidth;
+          if (isTruncated || nameEl.classList.contains("expanded")) {
+            nameEl.classList.toggle("expanded");
+          }
+        });
+
+        requestAnimationFrame(() => {
+          if (nameEl.scrollWidth > nameEl.clientWidth) {
+            nameEl.classList.add("expandable");
+          }
+        });
+
         grid.appendChild(row);
       });
 
@@ -286,12 +309,9 @@ tabs.forEach((btn) => {
   });
 });
 
-// INIT
 renderPills("food");
 renderMenu("food");
-
 document.getElementById("footerYear").textContent = new Date().getFullYear();
-
 document.getElementById("backToTop").addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
