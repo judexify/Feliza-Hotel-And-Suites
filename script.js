@@ -237,7 +237,7 @@ const sectionObserver = new IntersectionObserver(
   { threshold: 0.1 },
 );
 
-// MENU RENDER
+// MENU
 function renderMenu(tab) {
   const menuBody = document.getElementById("menuBody");
   menuBody.innerHTML = "";
@@ -287,10 +287,8 @@ function renderMenu(tab) {
             nameEl.classList.add("expandable");
           }
         });
-
         grid.appendChild(row);
       });
-
       sec.appendChild(header);
       sec.appendChild(grid);
       sectionObserver.observe(sec);
