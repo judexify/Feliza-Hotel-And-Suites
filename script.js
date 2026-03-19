@@ -7,7 +7,7 @@ const tabs = document.querySelectorAll(".tab-btn");
 
 // DARK MODE
 const themeToggle = document.getElementById("themeToggle");
-const themeIcon = themeToggle.querySelector("i");
+const toggleIcon = document.getElementById("toggleIcon"); // was missing
 
 function applyTheme(isDark) {
   document.documentElement.setAttribute(
