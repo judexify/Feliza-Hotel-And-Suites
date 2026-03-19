@@ -194,9 +194,10 @@ const menuData = [
     items: [
       { name: "Ewedu / Gbegiri", price: 5000 },
       {
-        name: "Egusi / Okra / Ogbono / Eforiro / Afang / Edikaikong / Bitter Leaf",
+        name: "Egusi / Okra / Ogbono / Eforiro",
         price: 15000,
       },
+      { name: "Afang / Edikaikong / Bitter Leaf", price: 15000 },
       { name: "Omi-Obe (Assorted)", price: 15000 },
       { name: "Vegetable Soup", price: 20000 },
       { name: "Fisherman Soup", price: 30000 },
