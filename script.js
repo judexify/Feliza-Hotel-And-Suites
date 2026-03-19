@@ -91,6 +91,7 @@ function formatPrice(amount) {
 }
 
 // MENU TYPE
+
 const pillsByTab = {
   food: [
     "Starters & Small Bites",
@@ -104,6 +105,7 @@ const pillsByTab = {
     "Grills",
     "Fried",
     "Shawarma",
+    "Other Dishes",
   ],
   drinks: [
     "Soft Drinks",
@@ -119,23 +121,6 @@ const pillsByTab = {
   ],
 };
 
-function renderPills(tab) {
-  pillBar.innerHTML = "";
-  pillsByTab[tab].forEach((label, i) => {
-    const btn = document.createElement("button");
-    btn.className = "pill" + (i === 0 ? " active" : "");
-    btn.textContent = label;
-    btn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".pill")
-        .forEach((p) => p.classList.remove("active"));
-      btn.classList.add("active");
-      scrollToSection(label);
-    });
-    pillBar.appendChild(btn);
-  });
-}
-
 // MENU DATA
 
 const menuData = [
@@ -143,7 +128,6 @@ const menuData = [
     tab: "food",
     label: "Starters & Small Bites",
     items: [
-      { name: "Boiled Egg", price: 500 },
       { name: "Peppered Ponmo", price: 3000 },
       { name: "Fried Goat Meat / Snail", price: 4500 },
       { name: "Fried Chicken Wings", price: 5000 },
@@ -151,8 +135,7 @@ const menuData = [
       { name: "Assorted Pepper Soup", price: 7500 },
       { name: "Peppered Beef", price: 8000 },
       { name: "Canada Way (Pancake, syrup & fruit)", price: 8500 },
-      { name: "Peppered Snail (with veggies & salad)", price: 13500 },
-      { name: "Peppered Snail", price: 18500 },
+      { name: "Peppered Snail (with veggies & salad)", price: 18500 },
     ],
   },
   {
@@ -183,7 +166,7 @@ const menuData = [
       { name: "Jollof Pasta", price: 5000 },
       { name: "Arrabiata Pasta", price: 4500 },
       { name: "Stir-fried Pasta", price: 6000 },
-      { name: "Noodles & Egg", price: 8500 },
+      { name: "Noodles & Egg", price: 8000 },
     ],
   },
   {
@@ -198,14 +181,18 @@ const menuData = [
       { name: "Akara", price: 2000 },
       { name: "Moimoi", price: 2500 },
       { name: "Coleslaw", price: 3000 },
-      { name: "Yam and Egg Sauce", price: 8000 },
     ],
+  },
+  {
+    tab: "food",
+    label: "Other Dishes",
+    items: [{ name: "Yam and Egg Sauce", price: 8000 }],
   },
   {
     tab: "food",
     label: "Soups",
     items: [
-      { name: "Ewedo / Abegiri", price: 5000 },
+      { name: "Ewedu / Gbegiri", price: 5000 },
       {
         name: "Egusi / Okra / Ogbono / Eforiro / Afang / Edikaikong / Bitter Leaf",
         price: 15000,
@@ -262,15 +249,16 @@ const menuData = [
     tab: "food",
     label: "Fried",
     items: [
-      { name: "Fried Titus Fish", price: 2500 },
-      { name: "Fried Fish (Kote, Titus)", price: 3000 },
-      { name: "Fried Croaker Fish", price: 3500 },
+      // { name: "Titus Fish", price: 2500 },
+      { name: "Fish (Kote)", price: 3000 },
+      { name: "Fish (Titus)", price: 3000 },
+      // { name: "Croaker Fish", price: 3500 },
       { name: "Croaker", price: 4000 },
       { name: "Chicken", price: 4000 },
-      { name: "Fried Turkey", price: 4500 },
+      // { name: "Small Size Turkey", price: 4500 },
       { name: "Turkey", price: 8000 },
-      { name: "Fried Goat Meat", price: 8000 },
-      { name: "Fried Beef", price: 8000 },
+      { name: "Goat Meat", price: 8000 },
+      { name: "Beef", price: 8000 },
     ],
   },
   {
@@ -436,6 +424,30 @@ const menuData = [
     ],
   },
 ];
+
+function renderPills(tab) {
+  pillBar.innerHTML = "";
+  pillsByTab[tab].forEach((label, i) => {
+    const btn = document.createElement("button");
+    btn.className = "pill" + (i === 0 ? " active" : "");
+    btn.textContent = label;
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".pill")
+        .forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+
+      if (searchInput.value) {
+        searchInput.value = "";
+        searchClear.classList.remove("visible");
+        renderMenu(tab);
+      }
+
+      scrollToSection(label);
+    });
+    pillBar.appendChild(btn);
+  });
+}
 
 const sectionObserver = new IntersectionObserver(
   (entries) => {
