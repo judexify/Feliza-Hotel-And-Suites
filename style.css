@@ -80,7 +80,8 @@ body {
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.58);
+  background: rgba(0, 0, 0, 0.75);
+  transition: opacity 0.6s ease;
 }
 
 .hero__content {

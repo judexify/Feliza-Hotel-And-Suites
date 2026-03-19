@@ -28,18 +28,16 @@ themeToggle.addEventListener("click", () => {
 });
 
 const carouselImages = [
-  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400&q=80",
-  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400&q=80",
-  "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=1400&q=80",
+  "img/hero1.jpeg",
+  "img/hero2.jpeg",
+  "img/hero3.jpeg",
+  "img/hero4.jpeg",
 ];
 
-const brandDot = document.createElement("span");
-brandDot.classList.add("hero__dot", "active");
-dotsContainer.appendChild(brandDot);
-
-carouselImages.forEach((url) => {
+carouselImages.forEach((url, i) => {
   const slide = document.createElement("div");
   slide.classList.add("hero__slide");
+  if (i === 0) slide.classList.add("active");
   slide.style.backgroundImage = `url('${url}')`;
 
   const img = new Image();
@@ -50,9 +48,9 @@ carouselImages.forEach((url) => {
 
   const dot = document.createElement("span");
   dot.classList.add("hero__dot");
+  if (i === 0) dot.classList.add("active");
   dotsContainer.appendChild(dot);
 });
-
 const slides = document.querySelectorAll(".hero__slide");
 const dots = document.querySelectorAll(".hero__dot");
 let current = 0;
@@ -63,10 +61,8 @@ function goToSlide(index) {
   current = index % slides.length;
   slides[current].classList.add("active");
   dots[current].classList.add("active");
-
-  const isBrand = slides[current].dataset.type === "brand";
-  overlay.style.opacity = isBrand ? "0" : "1";
-  heroContent.classList.toggle("hidden", isBrand);
+  overlay.style.opacity = "1";
+  heroContent.classList.remove("hidden");
 }
 
 dots.forEach((dot, i) => dot.addEventListener("click", () => goToSlide(i)));
@@ -100,12 +96,20 @@ const pillsByTab = {
     "Pasta & Noodles",
     "Soups",
     "Swallow",
+    "Pepper Soup",
+    "Grills",
+    "Fried",
+    "Shawarma",
+    "Beans",
   ],
   drinks: [
-    "Signature Cocktails",
+    "Soft Drinks",
+    "Beers",
     "Classic Cocktails",
+    "Signature Cocktails",
     "Wine",
     "Champagne & Sparkling",
+    "Spirits",
     "Ultra Premium Spirits",
   ],
 };
@@ -160,12 +164,10 @@ const menuData = [
     label: "Pasta & Noodles",
     items: [
       { name: "Jollof Pasta", price: 4500 },
-      { name: "Arabiata Pasta", price: 4500 },
+      { name: "Arrabiata Pasta", price: 4500 },
       { name: "Stir-fried Pasta", price: 5000 },
       { name: "White Pasta", price: 3000 },
       { name: "Noodles & Egg", price: 8500 },
-      { name: "Beans Pottage", price: 4000 },
-      { name: "White Beans", price: 3000 },
     ],
   },
   {
@@ -191,13 +193,82 @@ const menuData = [
     ],
   },
   {
-    tab: "drinks",
-    label: "Signature Cocktails",
+    tab: "food",
+    label: "Beans",
     items: [
-      { name: "Feliza Royal Punch", price: 8000 },
-      { name: "Abeokuta Sunrise", price: 8000 },
-      { name: "Classic Mojito", price: 8000 },
-      { name: "Long Island Iced Tea", price: 8000 },
+      { name: "Beans Pottage", price: 4000 },
+      { name: "White Beans", price: 3000 },
+    ],
+  },
+  {
+    tab: "food",
+    label: "Pepper Soup",
+    items: [
+      { name: "Assorted Pepper Soup", price: 7000 },
+      { name: "Cat Fish Pepper Soup", price: 8500 },
+      { name: "Cow Leg Pepper Soup", price: 7000 },
+      { name: "Croaker Fish Pepper Soup", price: 11000 },
+      { name: "Tilapia Pepper Soup", price: 5000 },
+      { name: "Goat Meat Pepper Soup", price: 12000 },
+    ],
+  },
+  {
+    tab: "food",
+    label: "Grills",
+    items: [
+      { name: "Barbecue Chicken (with chips or yam fries)", price: 11000 },
+      { name: "Grilled Catfish (with chips or yam fries)", price: 16000 },
+      { name: "Grilled Tilapia (with chips or yam fries)", price: 11000 },
+      { name: "Grilled Titus Fish (with chips or yam fries)", price: 7000 },
+      { name: "Grilled Turkey (with chips or yam fries)", price: 13000 },
+    ],
+  },
+  {
+    tab: "food",
+    label: "Fried",
+    items: [
+      { name: "Fried Chicken", price: 3000 },
+      { name: "Fried Croaker Fish", price: 3500 },
+      { name: "Fried Titus Fish", price: 2500 },
+      { name: "Fried Turkey", price: 4500 },
+      { name: "Fried Goat Meat", price: 8000 },
+      { name: "Fried Beef", price: 8000 },
+    ],
+  },
+  {
+    tab: "food",
+    label: "Shawarma",
+    items: [
+      { name: "Chicken Shawarma", price: 4500 },
+      { name: "Beef Shawarma", price: 5500 },
+      { name: "Asun Shawarma", price: 7000 },
+    ],
+  },
+  {
+    tab: "drinks",
+    label: "Soft Drinks",
+    items: [
+      { name: "Water 75cl", price: 1000 },
+      { name: "Water 150cl", price: 1500 },
+      { name: "Coke", price: 1000 },
+      { name: "Sprite", price: 1000 },
+      { name: "Fanta", price: 1000 },
+      { name: "Predator", price: 3000 },
+    ],
+  },
+  {
+    tab: "drinks",
+    label: "Beers",
+    items: [
+      { name: "Heineken", price: 3000 },
+      { name: "Budweiser", price: 3000 },
+      { name: "Trophy", price: 2500 },
+      { name: "Star Radler", price: 2000 },
+      { name: "Origin Beer", price: 3000 },
+      { name: "Maltina Stout", price: 3500 },
+      { name: "Big Ice", price: 3000 },
+      { name: "Goldberg", price: 3000 },
+      { name: "Desperado", price: 3000 },
     ],
   },
   {
@@ -214,12 +285,27 @@ const menuData = [
   },
   {
     tab: "drinks",
+    label: "Signature Cocktails",
+    items: [
+      { name: "Feliza Royal Punch", price: 8000 },
+      { name: "Abeokuta Sunrise", price: 8000 },
+      { name: "Classic Mojito", price: 8000 },
+      { name: "Long Island Iced Tea", price: 8000 },
+    ],
+  },
+
+  {
+    tab: "drinks",
     label: "Wine",
     items: [
       { name: "Drostdy Hof Claret (Bottle)", price: 14000 },
-      { name: "Chamdor (Bottle)", price: 12000 },
+      { name: "Chamdor (Bottle)", price: 10000 },
       { name: "Terrazas Malbec (Bottle)", price: 28000 },
       { name: "Thomas Barton (Bottle)", price: 70000 },
+      { name: "4th Street", price: 15000 },
+      { name: "Carlo Rossi", price: 25000 },
+      { name: "Four Cousins", price: 25000 },
+      { name: "Frontera", price: 15000 },
       { name: "House Wine (Glass)", price: 5000 },
     ],
   },
@@ -232,8 +318,31 @@ const menuData = [
       { name: "Martini Asti", price: 45000 },
       { name: "Andre Brut", price: 35000 },
       { name: "Cristal Champagne", price: 850000 },
-      { name: "Ace of Spades", price: 1000000 },
+      { name: "Ace of Spades", price: 800000 },
       { name: "Dom Pérignon", price: 710000 },
+    ],
+  },
+  {
+    tab: "drinks",
+    label: "Spirits",
+    items: [
+      { name: "Jack Daniel 750ml", price: 100000 },
+      { name: "Ciroc", price: 100000 },
+      { name: "Remy Martin", price: 110000 },
+      { name: "Bailey", price: 55000 },
+      { name: "Martel VS", price: 160000 },
+      { name: "Martel BA", price: 230000 },
+      { name: "Gordon Gin", price: 15000 },
+      { name: "Olmeca Tequila", price: 45000 },
+      { name: "Jameson Whiskey", price: 35000 },
+      { name: "Black Barrel", price: 63000 },
+      { name: "Bacardi", price: 35000 },
+      { name: "Absolut", price: 30000 },
+      { name: "William Lawson", price: 35000 },
+      { name: "Black Label", price: 55000 },
+      { name: "Red Label", price: 30000 },
+      { name: "Sierra Tequila", price: 37500 },
+      { name: "Casamigo 750ml", price: 230000 },
     ],
   },
   {
@@ -241,8 +350,11 @@ const menuData = [
     label: "Ultra Premium Spirits",
     items: [
       { name: "Don Julio 1942", price: 800000 },
+      { name: "Don Julio", price: 650000 },
       { name: "Glenfiddich 21yrs", price: 700000 },
+      { name: "Glenfiddich 18yrs", price: 350000 },
       { name: "Clase Azul", price: 700000 },
+      { name: "Azul", price: 700000 },
     ],
   },
 ];
@@ -278,7 +390,9 @@ function renderMenu(tab) {
       const grid = document.createElement("div");
       grid.className = "menu-grid";
 
-      section.items.forEach((item) => {
+      const sortedItems = [...section.items].sort((a, b) => a.price - b.price);
+
+      sortedItems.forEach((item) => {
         const row = document.createElement("div");
         row.className = "menu-item";
 
@@ -309,8 +423,10 @@ function renderMenu(tab) {
             nameEl.classList.add("expandable");
           }
         });
+
         grid.appendChild(row);
       });
+
       sec.appendChild(header);
       sec.appendChild(grid);
       sectionObserver.observe(sec);
