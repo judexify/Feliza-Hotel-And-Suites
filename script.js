@@ -4,6 +4,8 @@ const overlay = document.querySelector(".hero__overlay");
 const heroContent = document.getElementById("heroContent");
 const pillBar = document.getElementById("pillBar");
 const tabs = document.querySelectorAll(".tab-btn");
+const searchInput = document.getElementById("searchInput");
+const searchClear = document.getElementById("searchClear");
 
 // DARK MODE
 const themeToggle = document.getElementById("themeToggle");
@@ -94,23 +96,26 @@ const pillsByTab = {
     "Starters & Small Bites",
     "Rice Dishes",
     "Pasta & Noodles",
+    "Sides",
     "Soups",
     "Swallow",
+    "Beans",
     "Pepper Soup",
     "Grills",
     "Fried",
     "Shawarma",
-    "Beans",
   ],
   drinks: [
     "Soft Drinks",
     "Beers",
+    "Mocktails",
     "Classic Cocktails",
     "Signature Cocktails",
     "Wine",
     "Champagne & Sparkling",
     "Spirits",
     "Ultra Premium Spirits",
+    "Shots",
   ],
 };
 
@@ -132,52 +137,81 @@ function renderPills(tab) {
 }
 
 // MENU DATA
+
 const menuData = [
   {
     tab: "food",
     label: "Starters & Small Bites",
     items: [
+      { name: "Boiled Egg", price: 500 },
+      { name: "Peppered Ponmo", price: 3000 },
+      { name: "Fried Goat Meat / Snail", price: 4500 },
       { name: "Fried Chicken Wings", price: 5000 },
       { name: "BBQ Chicken Wings", price: 7000 },
       { name: "Assorted Pepper Soup", price: 7500 },
-      { name: "Fried Goat Meat / Snail", price: 4500 },
-      { name: "Peppered Snail (with veggies & salad)", price: 13500 },
+      { name: "Peppered Beef", price: 8000 },
       { name: "Canada Way (Pancake, syrup & fruit)", price: 8500 },
-      { name: "Boiled Egg", price: 500 },
+      { name: "Peppered Snail (with veggies & salad)", price: 13500 },
+      { name: "Peppered Snail", price: 18500 },
     ],
   },
   {
     tab: "food",
     label: "Rice Dishes",
     items: [
-      { name: "Coconut Rice", price: 5500 },
+      { name: "White Rice", price: 3000 },
       { name: "Smokey Jollof Rice", price: 4500 },
       { name: "Chinese Rice", price: 4500 },
+      { name: "Regular Fried Rice", price: 5500 },
+      { name: "Coconut Rice", price: 5500 },
       { name: "Jambalaya Rice", price: 5500 },
       { name: "Signature Native Rice", price: 6500 },
+      { name: "White Basmati Rice", price: 5000 },
+      { name: "Basmati Jollof", price: 7000 },
+      { name: "Basmati Fried Rice", price: 8000 },
+      { name: "Special Fried Rice", price: 8000 },
+      { name: "Asun Rice", price: 8000 },
       { name: "Ofada Rice & Sauce", price: 9500 },
-      { name: "White Rice", price: 3000 },
     ],
   },
   {
     tab: "food",
     label: "Pasta & Noodles",
     items: [
-      { name: "Jollof Pasta", price: 4500 },
-      { name: "Arrabiata Pasta", price: 4500 },
-      { name: "Stir-fried Pasta", price: 5000 },
       { name: "White Pasta", price: 3000 },
+      { name: "White Spaghetti", price: 3000 },
+      { name: "Jollof Pasta", price: 5000 },
+      { name: "Arrabiata Pasta", price: 4500 },
+      { name: "Stir-fried Pasta", price: 6000 },
       { name: "Noodles & Egg", price: 8500 },
+    ],
+  },
+  {
+    tab: "food",
+    label: "Sides",
+    items: [
+      { name: "Egg", price: 700 },
+      { name: "Bread", price: 1500 },
+      { name: "Fried Plantain", price: 1500 },
+      { name: "Chips", price: 2000 },
+      { name: "Yam Fritters", price: 2000 },
+      { name: "Akara", price: 2000 },
+      { name: "Moimoi", price: 2500 },
+      { name: "Coleslaw", price: 3000 },
+      { name: "Yam and Egg Sauce", price: 8000 },
     ],
   },
   {
     tab: "food",
     label: "Soups",
     items: [
-      { name: "Egusi / Okra / Ogbono / Eforiro", price: 15000 },
-      { name: "Vegetable Soup", price: 20000 },
       { name: "Ewedo / Abegiri", price: 5000 },
+      {
+        name: "Egusi / Okra / Ogbono / Eforiro / Afang / Edikaikong / Bitter Leaf",
+        price: 15000,
+      },
       { name: "Omi-Obe (Assorted)", price: 15000 },
+      { name: "Vegetable Soup", price: 20000 },
       { name: "Fisherman Soup", price: 30000 },
       { name: "Seafood Okra", price: 30000 },
     ],
@@ -186,29 +220,30 @@ const menuData = [
     tab: "food",
     label: "Swallow",
     items: [
-      { name: "Pounded Yam", price: 1000 },
-      { name: "Semo Wraps", price: 700 },
       { name: "Fufu", price: 500 },
+      { name: "Semo Wraps", price: 700 },
       { name: "Eba / Wheat", price: 700 },
+      { name: "Pounded Yam", price: 1000 },
+      { name: "Poundo Yam", price: 1000 },
     ],
   },
   {
     tab: "food",
     label: "Beans",
     items: [
-      { name: "Beans Pottage", price: 4000 },
       { name: "White Beans", price: 3000 },
+      { name: "Beans Pottage", price: 4000 },
     ],
   },
   {
     tab: "food",
     label: "Pepper Soup",
     items: [
-      { name: "Assorted Pepper Soup", price: 7000 },
-      { name: "Cat Fish Pepper Soup", price: 8500 },
-      { name: "Cow Leg Pepper Soup", price: 7000 },
-      { name: "Croaker Fish Pepper Soup", price: 11000 },
       { name: "Tilapia Pepper Soup", price: 5000 },
+      { name: "Assorted Pepper Soup", price: 7000 },
+      { name: "Cow Leg Pepper Soup", price: 7000 },
+      { name: "Cat Fish Pepper Soup", price: 8500 },
+      { name: "Croaker Fish Pepper Soup", price: 11000 },
       { name: "Goat Meat Pepper Soup", price: 12000 },
     ],
   },
@@ -216,21 +251,24 @@ const menuData = [
     tab: "food",
     label: "Grills",
     items: [
-      { name: "Barbecue Chicken (with chips or yam fries)", price: 11000 },
-      { name: "Grilled Catfish (with chips or yam fries)", price: 16000 },
-      { name: "Grilled Tilapia (with chips or yam fries)", price: 11000 },
       { name: "Grilled Titus Fish (with chips or yam fries)", price: 7000 },
+      { name: "Barbecue Chicken (with chips or yam fries)", price: 11000 },
+      { name: "Grilled Tilapia (with chips or yam fries)", price: 11000 },
       { name: "Grilled Turkey (with chips or yam fries)", price: 13000 },
+      { name: "Grilled Catfish (with chips or yam fries)", price: 16000 },
     ],
   },
   {
     tab: "food",
     label: "Fried",
     items: [
-      { name: "Fried Chicken", price: 3000 },
-      { name: "Fried Croaker Fish", price: 3500 },
       { name: "Fried Titus Fish", price: 2500 },
+      { name: "Fried Fish (Kote, Titus)", price: 3000 },
+      { name: "Fried Croaker Fish", price: 3500 },
+      { name: "Croaker", price: 4000 },
+      { name: "Chicken", price: 4000 },
       { name: "Fried Turkey", price: 4500 },
+      { name: "Turkey", price: 8000 },
       { name: "Fried Goat Meat", price: 8000 },
       { name: "Fried Beef", price: 8000 },
     ],
@@ -249,10 +287,12 @@ const menuData = [
     label: "Soft Drinks",
     items: [
       { name: "Water 75cl", price: 1000 },
+      { name: "Coke", price: 1400 },
+      { name: "Sprite", price: 1400 },
+      { name: "Fanta", price: 1400 },
+      { name: "Pepsi", price: 1400 },
       { name: "Water 150cl", price: 1500 },
-      { name: "Coke", price: 1000 },
-      { name: "Sprite", price: 1000 },
-      { name: "Fanta", price: 1000 },
+      { name: "Active Chivita", price: 4000 },
       { name: "Predator", price: 3000 },
     ],
   },
@@ -260,15 +300,26 @@ const menuData = [
     tab: "drinks",
     label: "Beers",
     items: [
+      { name: "Star Radler", price: 2500 },
+      { name: "Trophy", price: 2500 },
       { name: "Heineken", price: 3000 },
       { name: "Budweiser", price: 3000 },
-      { name: "Trophy", price: 2500 },
-      { name: "Star Radler", price: 2000 },
       { name: "Origin Beer", price: 3000 },
-      { name: "Maltina Stout", price: 3500 },
       { name: "Big Ice", price: 3000 },
       { name: "Goldberg", price: 3000 },
       { name: "Desperado", price: 3000 },
+      { name: "Black Bullet", price: 4000 },
+      { name: "Maltina Stout", price: 3500 },
+    ],
+  },
+  {
+    tab: "drinks",
+    label: "Mocktails",
+    items: [
+      { name: "Chapman", price: 5000 },
+      { name: "Strawberry Lemonade", price: 5000 },
+      { name: "Virgin Piña Colada", price: 5000 },
+      { name: "Virgin Mojito", price: 5000 },
     ],
   },
   {
@@ -293,68 +344,95 @@ const menuData = [
       { name: "Long Island Iced Tea", price: 8000 },
     ],
   },
-
   {
     tab: "drinks",
     label: "Wine",
     items: [
-      { name: "Drostdy Hof Claret (Bottle)", price: 14000 },
-      { name: "Chamdor (Bottle)", price: 10000 },
-      { name: "Terrazas Malbec (Bottle)", price: 28000 },
-      { name: "Thomas Barton (Bottle)", price: 70000 },
-      { name: "4th Street", price: 15000 },
-      { name: "Carlo Rossi", price: 25000 },
-      { name: "Four Cousins", price: 25000 },
-      { name: "Frontera", price: 15000 },
       { name: "House Wine (Glass)", price: 5000 },
+      { name: "Amabile di Rosa", price: 15000 },
+      { name: "Valeta Small", price: 15000 },
+      { name: "Chamdor (Bottle)", price: 20000 },
+      { name: "Drostdy Hof Claret (Bottle)", price: 20000 },
+      { name: "Whispering Angel", price: 21000 },
+      { name: "Four Cousins", price: 35000 },
+      { name: "Carlo Rossi", price: 25000 },
+      { name: "Frontera", price: 15000 },
+      { name: "Valeta Big", price: 28000 },
+      { name: "Terrazas Malbec (Bottle)", price: 28000 },
+      { name: "4th Street", price: 30000 },
+      { name: "Thomas Barton (Bottle)", price: 70000 },
     ],
   },
   {
     tab: "drinks",
     label: "Champagne & Sparkling",
     items: [
-      { name: "Moët & Chandon", price: 200000 },
-      { name: "Veuve Clicquot", price: 190000 },
-      { name: "Martini Asti", price: 45000 },
+      { name: "Bottega Gold", price: 20000 },
       { name: "Andre Brut", price: 35000 },
-      { name: "Cristal Champagne", price: 850000 },
-      { name: "Ace of Spades", price: 800000 },
+      { name: "Talking Parrot", price: 40000 },
+      { name: "Martini Asti", price: 45000 },
+      { name: "Veuve Brut Small", price: 100000 },
+      { name: "Veuve de Verney Ice Rose", price: 150000 },
+      { name: "Moët & Chandon", price: 200000 },
+      { name: "Veuve Brut Big", price: 190000 },
+      { name: "Veuve Clicquot", price: 190000 },
       { name: "Dom Pérignon", price: 710000 },
+      { name: "Ace of Spades", price: 800000 },
+      { name: "Cristal Champagne", price: 850000 },
     ],
   },
   {
     tab: "drinks",
     label: "Spirits",
     items: [
-      { name: "Jack Daniel 750ml", price: 100000 },
-      { name: "Ciroc", price: 100000 },
-      { name: "Remy Martin", price: 110000 },
-      { name: "Bailey", price: 55000 },
-      { name: "Martel VS", price: 160000 },
-      { name: "Martel BA", price: 230000 },
-      { name: "Gordon Gin", price: 15000 },
-      { name: "Olmeca Tequila", price: 45000 },
+      { name: "Gordon Gin", price: 90000 },
       { name: "Jameson Whiskey", price: 35000 },
-      { name: "Black Barrel", price: 63000 },
-      { name: "Bacardi", price: 35000 },
-      { name: "Absolut", price: 30000 },
+      { name: "Jameson Green", price: 42500 },
+      { name: "Jameson Black", price: 65000 },
       { name: "William Lawson", price: 35000 },
-      { name: "Black Label", price: 55000 },
-      { name: "Red Label", price: 30000 },
-      { name: "Sierra Tequila", price: 37500 },
+      { name: "Bacardi", price: 45000 },
+      { name: "Absolut", price: 50000 },
+      { name: "Bailey", price: 55000 },
+      { name: "Black Label", price: 80000 },
+      { name: "Red Label", price: 42000 },
+      { name: "Black Barrel", price: 65000 },
+      { name: "Brown and Burk", price: 40000 },
+      { name: "Olmeca Tequila", price: 55000 },
+      { name: "Martel VS", price: 90000 },
+      { name: "Martel Blue Swift", price: 205000 },
+      { name: "Smirnoff", price: 95000 },
+      { name: "Ciroc", price: 100000 },
+      { name: "Jack Daniel 750ml", price: 100000 },
+      { name: "Remy Martin", price: 110000 },
+      { name: "Bombay Sapphire", price: 130000 },
+      { name: "Hennessy VS", price: 160000 },
       { name: "Casamigo 750ml", price: 230000 },
+      { name: "Origin Bitters Bottle", price: 20000 },
+      { name: "Sierra Tequila", price: 37500 },
     ],
   },
   {
     tab: "drinks",
     label: "Ultra Premium Spirits",
     items: [
-      { name: "Don Julio 1942", price: 800000 },
+      { name: "Glenfiddich 18yrs", price: 350000 },
       { name: "Don Julio", price: 650000 },
       { name: "Glenfiddich 21yrs", price: 700000 },
-      { name: "Glenfiddich 18yrs", price: 350000 },
       { name: "Clase Azul", price: 700000 },
       { name: "Azul", price: 700000 },
+      { name: "Don Julio 1942", price: 800000 },
+    ],
+  },
+  {
+    tab: "drinks",
+    label: "Shots",
+    items: [
+      { name: "Jameson", price: 3000 },
+      { name: "Ciroc", price: 3000 },
+      { name: "Jack Daniel", price: 5000 },
+      { name: "Casamigo", price: 5000 },
+      { name: "Glenfiddich", price: 5500 },
+      { name: "Azul", price: 10000 },
     ],
   },
 ];
@@ -372,67 +450,116 @@ const sectionObserver = new IntersectionObserver(
 );
 
 // MENU
-function renderMenu(tab) {
+function renderMenu(tab, query = "") {
   const menuBody = document.getElementById("menuBody");
   menuBody.innerHTML = "";
 
-  menuData
-    .filter((section) => section.tab === tab)
-    .forEach((section) => {
-      const sec = document.createElement("div");
-      sec.className = "menu-section";
-      sec.id = slugify(section.label);
+  const q = query.toLowerCase().trim();
 
-      const header = document.createElement("div");
-      header.className = "menu-section__header";
-      header.textContent = section.label;
+  const filtered = menuData
+    .filter((section) => (q ? true : section.tab === tab))
+    .map((section) => {
+      if (!q) return section;
 
-      const grid = document.createElement("div");
-      grid.className = "menu-grid";
+      const sectionMatches = section.label.toLowerCase().includes(q);
+      if (sectionMatches) return section;
 
-      const sortedItems = [...section.items].sort((a, b) => a.price - b.price);
+      const matchedItems = section.items.filter((item) =>
+        item.name.toLowerCase().includes(q),
+      );
+      return matchedItems.length ? { ...section, items: matchedItems } : null;
+    })
+    .filter(Boolean);
 
-      sortedItems.forEach((item) => {
-        const row = document.createElement("div");
-        row.className = "menu-item";
+  if (filtered.length === 0) {
+    menuBody.innerHTML = `
+      <div class="menu-empty">
+        <div class="menu-empty__icon">🍽</div>
+        <p class="menu-empty__text">No results for "<strong>${query}</strong>"</p>
+        <p class="menu-empty__sub">Try searching by item name or category</p>
+      </div>
+    `;
+    return;
+  }
 
-        const nameEl = document.createElement("span");
-        nameEl.className = "menu-item__name";
-        nameEl.textContent = item.name;
+  filtered.forEach((section) => {
+    const sec = document.createElement("div");
+    sec.className = "menu-section";
+    sec.id = slugify(section.label);
 
-        const dotsEl = document.createElement("span");
-        dotsEl.className = "menu-item__dots";
+    const header = document.createElement("div");
+    header.className = "menu-section__header";
+    header.textContent = section.label;
 
-        const priceEl = document.createElement("span");
-        priceEl.className = "menu-item__price";
-        priceEl.textContent = formatPrice(item.price);
+    // tab badge — only shown during global search
+    if (q) {
+      const badge = document.createElement("span");
+      badge.className = "menu-section__badge";
+      badge.textContent = section.tab === "food" ? "FOOD" : "DRINKS";
+      header.appendChild(badge);
+    }
 
-        row.appendChild(nameEl);
-        row.appendChild(dotsEl);
-        row.appendChild(priceEl);
+    const grid = document.createElement("div");
+    grid.className = "menu-grid";
 
-        nameEl.addEventListener("click", () => {
-          const isTruncated = nameEl.scrollWidth > nameEl.clientWidth;
-          if (isTruncated || nameEl.classList.contains("expanded")) {
-            nameEl.classList.toggle("expanded");
-          }
-        });
+    const sortedItems = [...section.items].sort((a, b) => a.price - b.price);
 
-        requestAnimationFrame(() => {
-          if (nameEl.scrollWidth > nameEl.clientWidth) {
-            nameEl.classList.add("expandable");
-          }
-        });
+    sortedItems.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "menu-item";
 
-        grid.appendChild(row);
+      const nameEl = document.createElement("span");
+      nameEl.className = "menu-item__name";
+      nameEl.textContent = item.name;
+
+      const dotsEl = document.createElement("span");
+      dotsEl.className = "menu-item__dots";
+
+      const priceEl = document.createElement("span");
+      priceEl.className = "menu-item__price";
+      priceEl.textContent = formatPrice(item.price);
+
+      row.appendChild(nameEl);
+      row.appendChild(dotsEl);
+      row.appendChild(priceEl);
+
+      nameEl.addEventListener("click", () => {
+        const isTruncated = nameEl.scrollWidth > nameEl.clientWidth;
+        if (isTruncated || nameEl.classList.contains("expanded")) {
+          nameEl.classList.toggle("expanded");
+        }
       });
 
-      sec.appendChild(header);
-      sec.appendChild(grid);
-      sectionObserver.observe(sec);
-      menuBody.appendChild(sec);
+      requestAnimationFrame(() => {
+        if (nameEl.scrollWidth > nameEl.clientWidth) {
+          nameEl.classList.add("expandable");
+        }
+      });
+
+      grid.appendChild(row);
     });
+
+    sec.appendChild(header);
+    sec.appendChild(grid);
+    sectionObserver.observe(sec);
+    menuBody.appendChild(sec);
+  });
 }
+
+// SEARCH
+searchInput.addEventListener("input", () => {
+  const query = searchInput.value;
+  const activeTab = document.querySelector(".tab-btn.active").dataset.tab;
+  searchClear.classList.toggle("visible", query.length > 0);
+  renderMenu(activeTab, query);
+});
+
+searchClear.addEventListener("click", () => {
+  searchInput.value = "";
+  searchClear.classList.remove("visible");
+  const activeTab = document.querySelector(".tab-btn.active").dataset.tab;
+  renderMenu(activeTab);
+});
 
 // TABS
 tabs.forEach((btn) => {
@@ -440,6 +567,8 @@ tabs.forEach((btn) => {
     tabs.forEach((t) => t.classList.remove("active"));
     btn.classList.add("active");
     const activeTab = btn.dataset.tab;
+    searchInput.value = "";
+    searchClear.classList.remove("visible");
     renderPills(activeTab);
     renderMenu(activeTab);
   });
