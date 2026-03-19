@@ -527,6 +527,10 @@ body {
   transition: all 0.25s ease;
   margin-left: 0.5rem;
 }
+.toggle-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
 
 .theme-toggle:hover {
   background: var(--color-primary);

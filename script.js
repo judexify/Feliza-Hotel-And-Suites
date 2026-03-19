@@ -14,7 +14,7 @@ function applyTheme(isDark) {
     "data-theme",
     isDark ? "dark" : "light",
   );
-  themeIcon.className = isDark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+  toggleIcon.textContent = isDark ? "☀" : "☽";
   localStorage.setItem("theme", isDark ? "dark" : "light");
 }
 
