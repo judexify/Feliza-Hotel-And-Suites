@@ -5,6 +5,28 @@ const heroContent = document.getElementById("heroContent");
 const pillBar = document.getElementById("pillBar");
 const tabs = document.querySelectorAll(".tab-btn");
 
+// DARK MODE
+const themeToggle = document.getElementById("themeToggle");
+const themeIcon = themeToggle.querySelector("i");
+
+function applyTheme(isDark) {
+  document.documentElement.setAttribute(
+    "data-theme",
+    isDark ? "dark" : "light",
+  );
+  themeIcon.className = isDark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+}
+
+const savedTheme = localStorage.getItem("theme");
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+applyTheme(savedTheme ? savedTheme === "dark" : prefersDark);
+
+themeToggle.addEventListener("click", () => {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  applyTheme(!isDark);
+});
+
 const carouselImages = [
   "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400&q=80",
   "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400&q=80",
