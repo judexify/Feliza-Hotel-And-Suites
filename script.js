@@ -9,7 +9,7 @@ const searchClear = document.getElementById("searchClear");
 
 // DARK MODE
 const themeToggle = document.getElementById("themeToggle");
-const toggleIcon = document.getElementById("toggleIcon"); // was missing
+const toggleIcon = document.getElementById("toggleIcon");
 
 function applyTheme(isDark) {
   document.documentElement.setAttribute(
@@ -29,6 +29,7 @@ themeToggle.addEventListener("click", () => {
   applyTheme(!isDark);
 });
 
+// CAROUSEL
 const carouselImages = [
   "img/hero1.jpeg",
   "img/hero2.jpeg",
@@ -53,6 +54,7 @@ carouselImages.forEach((url, i) => {
   if (i === 0) dot.classList.add("active");
   dotsContainer.appendChild(dot);
 });
+
 const slides = document.querySelectorAll(".hero__slide");
 const dots = document.querySelectorAll(".hero__dot");
 let current = 0;
@@ -70,6 +72,7 @@ function goToSlide(index) {
 dots.forEach((dot, i) => dot.addEventListener("click", () => goToSlide(i)));
 setInterval(() => goToSlide(current + 1), 4500);
 
+// UTILS
 function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
@@ -77,11 +80,9 @@ function slugify(str) {
 function scrollToSection(label) {
   const target = document.getElementById(slugify(label));
   if (!target) return;
-
   const navbarHeight = document.querySelector(".navbar").offsetHeight;
   const pillBarHeight = document.querySelector(".pill-bar").offsetHeight;
   const offset = navbarHeight + pillBarHeight + 16;
-
   const top = target.getBoundingClientRect().top + window.scrollY - offset;
   window.scrollTo({ top, behavior: "smooth" });
 }
@@ -90,40 +91,187 @@ function formatPrice(amount) {
   return "₦" + amount.toLocaleString("en-NG") + ".00";
 }
 
-// MENU TYPE
+const pillsByTab = { food: [], drinks: [] };
 
-const pillsByTab = {
-  food: [
-    "Starters & Small Bites",
-    "Rice Dishes",
-    "Pasta & Noodles",
-    "Sides",
-    "Soups",
-    "Swallow",
-    "Beans",
-    "Pepper Soup",
-    "Grills",
-    "Fried",
-    "Shawarma",
-    "Other Dishes",
-  ],
-  drinks: [
-    "Soft Drinks",
-    "Beers",
-    "Mocktails",
-    "Classic Cocktails",
-    "Signature Cocktails",
-    "Wine",
-    "Champagne & Sparkling",
-    "Spirits",
-    "Ultra Premium Spirits",
-    "Shots",
-  ],
-};
+function renderPills(tab) {
+  pillBar.innerHTML = "";
+  pillsByTab[tab].forEach((label, i) => {
+    const btn = document.createElement("button");
+    btn.className = "pill" + (i === 0 ? " active" : "");
+    btn.textContent = label;
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".pill")
+        .forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      if (searchInput.value) {
+        searchInput.value = "";
+        searchClear.classList.remove("visible");
+        renderMenu(tab);
+      }
+      scrollToSection(label);
+    });
+    pillBar.appendChild(btn);
+  });
+}
 
-// MENU DATA
+// MENU DATA — populated from CSV
+let menuData = [];
 
-const menuData = [
+// INTERSECTION OBSERVER
+const sectionObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+        sectionObserver.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.1 },
+);
+
+// MENU RENDER
+function renderMenu(tab, query = "") {
+  const menuBody = document.getElementById("menuBody");
+  menuBody.innerHTML = "";
+
+  const q = query.toLowerCase().trim();
+
+  const filtered = menuData
+    .filter((section) => (q ? true : section.tab === tab))
+    .map((section) => {
+      if (!q) return section;
+      const sectionMatches = section.label.toLowerCase().includes(q);
+      if (sectionMatches) return section;
+      const matchedItems = section.items.filter((item) =>
+        item.name.toLowerCase().includes(q),
+      );
+      return matchedItems.length ? { ...section, items: matchedItems } : null;
+    })
+    .filter(Boolean);
+
+  if (filtered.length === 0) {
+    menuBody.innerHTML = `
+      <div class="menu-empty">
+        <div class="menu-empty__icon">🍽</div>
+        <p class="menu-empty__text">No results for "<strong>${query}</strong>"</p>
+        <p class="menu-empty__sub">Try searching by item name or category</p>
+      </div>
+    `;
+    return;
+  }
+
+  filtered.forEach((section) => {
+    const sec = document.createElement("div");
+    sec.className = "menu-section";
+    sec.id = slugify(section.label);
+
+    const header = document.createElement("div");
+    header.className = "menu-section__header";
+    header.textContent = section.label;
+
+    if (q) {
+      const badge = document.createElement("span");
+      badge.className = "menu-section__badge";
+      badge.textContent = section.tab === "food" ? "FOOD" : "DRINKS";
+      header.appendChild(badge);
+    }
+
+    const grid = document.createElement("div");
+    grid.className = "menu-grid";
+
+    const sortedItems = [...section.items].sort((a, b) => a.price - b.price);
+
+    sortedItems.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "menu-item";
+
+      const nameEl = document.createElement("span");
+      nameEl.className = "menu-item__name";
+      nameEl.textContent = item.name;
+
+      const dotsEl = document.createElement("span");
+      dotsEl.className = "menu-item__dots";
+
+      const priceEl = document.createElement("span");
+      priceEl.className = "menu-item__price";
+      priceEl.textContent = formatPrice(item.price);
+
+      row.appendChild(nameEl);
+      row.appendChild(dotsEl);
+      row.appendChild(priceEl);
+
+      nameEl.addEventListener("click", () => {
+        const isTruncated = nameEl.scrollWidth > nameEl.clientWidth;
+        if (isTruncated || nameEl.classList.contains("expanded")) {
+          nameEl.classList.toggle("expanded");
+        }
+      });
+
+      requestAnimationFrame(() => {
+        if (nameEl.scrollWidth > nameEl.clientWidth) {
+          nameEl.classList.add("expandable");
+        }
+      });
+
+      grid.appendChild(row);
+    });
+
+    sec.appendChild(header);
+    sec.appendChild(grid);
+    sectionObserver.observe(sec);
+    menuBody.appendChild(sec);
+  });
+}
+
+function parseCSV(text, tab) {
+  const lines = text.trim().split("\n").slice(2);
+  const sections = {};
+
+  lines.forEach((line) => {
+    const cleanLine = line.replace(/\r/g, "");
+    const cols = cleanLine.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
+    const label = cols[0]?.replace(/"/g, "").trim();
+    const name = cols[1]?.replace(/"/g, "").trim();
+    const price = parseInt(
+      cols[2]?.replace(/"/g, "").replace(/,/g, "").trim(),
+      10,
+    );
+
+    if (!label || !name || isNaN(price)) return;
+
+    if (!sections[label]) sections[label] = [];
+    sections[label].push({ name, price });
+  });
+
+  return Object.entries(sections).map(([label, items]) => ({
+    tab,
+    label,
+    items,
+  }));
+}
+
+function showMenuLoading() {
+  document.getElementById("menuBody").innerHTML = `
+    <div class="menu-loading">
+      <div class="menu-loading__spinner"></div>
+      <p class="menu-loading__text">Loading menu...</p>
+    </div>
+  `;
+}
+
+function showMenuError() {
+  document.getElementById("menuBody").innerHTML = `
+    <div class="menu-empty">
+      <div class="menu-empty__icon">⚠️</div>
+      <p class="menu-empty__text">Failed to load menu</p>
+      <p class="menu-empty__sub">Please check your connection and refresh the page</p>
+    </div>
+  `;
+}
+
+const FALLBACK_DATA = [
   {
     tab: "food",
     label: "Starters & Small Bites",
@@ -426,137 +574,50 @@ const menuData = [
   },
 ];
 
-function renderPills(tab) {
-  pillBar.innerHTML = "";
-  pillsByTab[tab].forEach((label, i) => {
-    const btn = document.createElement("button");
-    btn.className = "pill" + (i === 0 ? " active" : "");
-    btn.textContent = label;
-    btn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".pill")
-        .forEach((p) => p.classList.remove("active"));
-      btn.classList.add("active");
+const CSV_URLS = {
+  food: CONFIG.CSV_FOOD,
+  drinks: CONFIG.CSV_DRINKS,
+};
 
-      if (searchInput.value) {
-        searchInput.value = "";
-        searchClear.classList.remove("visible");
-        renderMenu(tab);
-      }
+async function loadMenuData() {
+  showMenuLoading();
 
-      scrollToSection(label);
-    });
-    pillBar.appendChild(btn);
-  });
-}
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("timeout")), 5000),
+  );
 
-const sectionObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        sectionObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.1 },
-);
+  try {
+    const [foodRes, drinksRes] = await Promise.race([
+      Promise.all([fetch(CSV_URLS.food), fetch(CSV_URLS.drinks)]),
+      timeout,
+    ]);
 
-// MENU
-function renderMenu(tab, query = "") {
-  const menuBody = document.getElementById("menuBody");
-  menuBody.innerHTML = "";
+    const [foodText, drinksText] = await Promise.all([
+      foodRes.text(),
+      drinksRes.text(),
+    ]);
 
-  const q = query.toLowerCase().trim();
+    const foodData = parseCSV(foodText, "food");
+    const drinksData = parseCSV(drinksText, "drinks");
 
-  const filtered = menuData
-    .filter((section) => (q ? true : section.tab === tab))
-    .map((section) => {
-      if (!q) return section;
+    if (!foodData.length && !drinksData.length) throw new Error("empty");
 
-      const sectionMatches = section.label.toLowerCase().includes(q);
-      if (sectionMatches) return section;
-
-      const matchedItems = section.items.filter((item) =>
-        item.name.toLowerCase().includes(q),
-      );
-      return matchedItems.length ? { ...section, items: matchedItems } : null;
-    })
-    .filter(Boolean);
-
-  if (filtered.length === 0) {
-    menuBody.innerHTML = `
-      <div class="menu-empty">
-        <div class="menu-empty__icon">🍽</div>
-        <p class="menu-empty__text">No results for "<strong>${query}</strong>"</p>
-        <p class="menu-empty__sub">Try searching by item name or category</p>
-      </div>
-    `;
-    return;
+    menuData = [...foodData, ...drinksData];
+    pillsByTab.food = foodData.map((s) => s.label);
+    pillsByTab.drinks = drinksData.map((s) => s.label);
+  } catch (err) {
+    console.warn("Falling back to local data:", err.message);
+    menuData = FALLBACK_DATA;
+    pillsByTab.food = FALLBACK_DATA.filter((s) => s.tab === "food").map(
+      (s) => s.label,
+    );
+    pillsByTab.drinks = FALLBACK_DATA.filter((s) => s.tab === "drinks").map(
+      (s) => s.label,
+    );
   }
 
-  filtered.forEach((section) => {
-    const sec = document.createElement("div");
-    sec.className = "menu-section";
-    sec.id = slugify(section.label);
-
-    const header = document.createElement("div");
-    header.className = "menu-section__header";
-    header.textContent = section.label;
-
-    // tab badge — only shown during global search
-    if (q) {
-      const badge = document.createElement("span");
-      badge.className = "menu-section__badge";
-      badge.textContent = section.tab === "food" ? "FOOD" : "DRINKS";
-      header.appendChild(badge);
-    }
-
-    const grid = document.createElement("div");
-    grid.className = "menu-grid";
-
-    const sortedItems = [...section.items].sort((a, b) => a.price - b.price);
-
-    sortedItems.forEach((item) => {
-      const row = document.createElement("div");
-      row.className = "menu-item";
-
-      const nameEl = document.createElement("span");
-      nameEl.className = "menu-item__name";
-      nameEl.textContent = item.name;
-
-      const dotsEl = document.createElement("span");
-      dotsEl.className = "menu-item__dots";
-
-      const priceEl = document.createElement("span");
-      priceEl.className = "menu-item__price";
-      priceEl.textContent = formatPrice(item.price);
-
-      row.appendChild(nameEl);
-      row.appendChild(dotsEl);
-      row.appendChild(priceEl);
-
-      nameEl.addEventListener("click", () => {
-        const isTruncated = nameEl.scrollWidth > nameEl.clientWidth;
-        if (isTruncated || nameEl.classList.contains("expanded")) {
-          nameEl.classList.toggle("expanded");
-        }
-      });
-
-      requestAnimationFrame(() => {
-        if (nameEl.scrollWidth > nameEl.clientWidth) {
-          nameEl.classList.add("expandable");
-        }
-      });
-
-      grid.appendChild(row);
-    });
-
-    sec.appendChild(header);
-    sec.appendChild(grid);
-    sectionObserver.observe(sec);
-    menuBody.appendChild(sec);
-  });
+  renderPills("food");
+  renderMenu("food");
 }
 
 // SEARCH
@@ -587,8 +648,8 @@ tabs.forEach((btn) => {
   });
 });
 
-renderPills("food");
-renderMenu("food");
+// INIT
+loadMenuData();
 document.getElementById("footerYear").textContent = new Date().getFullYear();
 document.getElementById("backToTop").addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
