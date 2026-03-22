@@ -1,124 +1,288 @@
-const slidesContainer = document.querySelector(".hero__slides");
-const dotsContainer = document.querySelector(".hero__dots");
-const overlay = document.querySelector(".hero__overlay");
-const heroContent = document.getElementById("heroContent");
-const pillBar = document.getElementById("pillBar");
-const tabs = document.querySelectorAll(".tab-btn");
-const searchInput = document.getElementById("searchInput");
-const searchClear = document.getElementById("searchClear");
+const CSV_URLS = {
+  food: CONFIG.CSV_FOOD,
+  drinks: CONFIG.CSV_DRINKS,
+};
 
-// DARK MODE
-const themeToggle = document.getElementById("themeToggle");
-const toggleIcon = document.getElementById("toggleIcon");
-
-function applyTheme(isDark) {
-  document.documentElement.setAttribute(
-    "data-theme",
-    isDark ? "dark" : "light",
-  );
-  toggleIcon.textContent = isDark ? "☀" : "☽";
-  localStorage.setItem("theme", isDark ? "dark" : "light");
-}
-
-const savedTheme = localStorage.getItem("theme");
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-applyTheme(savedTheme ? savedTheme === "dark" : prefersDark);
-
-themeToggle.addEventListener("click", () => {
-  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-  applyTheme(!isDark);
-});
-
-// CAROUSEL
-const carouselImages = [
+const CAROUSEL_IMAGES = [
   "img/hero1.jpeg",
   "img/hero2.jpeg",
   "img/hero3.jpeg",
   "img/hero4.jpeg",
 ];
 
-carouselImages.forEach((url, i) => {
+const TIMEOUT_MS = 5000;
+
+let menuData = [];
+let pillsByTab = { food: [], drinks: [] };
+let currentSlide = 0;
+
+const DOM = {
+  slidesContainer: document.querySelector(".hero__slides"),
+  dotsContainer: document.querySelector(".hero__dots"),
+  overlay: document.querySelector(".hero__overlay"),
+  heroContent: document.getElementById("heroContent"),
+  pillBar: document.getElementById("pillBar"),
+  menuBody: document.getElementById("menuBody"),
+  tabs: document.querySelectorAll(".tab-btn"),
+  searchInput: document.getElementById("searchInput"),
+  searchClear: document.getElementById("searchClear"),
+  themeToggle: document.getElementById("themeToggle"),
+  toggleIcon: document.getElementById("toggleIcon"),
+  footerYear: document.getElementById("footerYear"),
+  backToTop: document.getElementById("backToTop"),
+};
+
+const slugify = (str) => str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+const formatPrice = (amount) => "₦" + amount.toLocaleString("en-NG") + ".00";
+
+const getActiveTab = () =>
+  document.querySelector(".tab-btn.active").dataset.tab;
+
+function getInitialTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved) return saved === "dark";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function applyTheme(isDark) {
+  document.documentElement.setAttribute(
+    "data-theme",
+    isDark ? "dark" : "light",
+  );
+  DOM.toggleIcon.textContent = isDark ? "☀" : "☽";
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  applyTheme(!isDark);
+}
+
+function createSlide(url, isFirst) {
   const slide = document.createElement("div");
   slide.classList.add("hero__slide");
-  if (i === 0) slide.classList.add("active");
+  if (isFirst) slide.classList.add("active");
   slide.style.backgroundImage = `url('${url}')`;
-
   const img = new Image();
   img.src = url;
   img.onload = () => slide.classList.add("loaded");
-
-  slidesContainer.appendChild(slide);
-
-  const dot = document.createElement("span");
-  dot.classList.add("hero__dot");
-  if (i === 0) dot.classList.add("active");
-  dotsContainer.appendChild(dot);
-});
-
-const slides = document.querySelectorAll(".hero__slide");
-const dots = document.querySelectorAll(".hero__dot");
-let current = 0;
-
-function goToSlide(index) {
-  slides[current].classList.remove("active");
-  dots[current].classList.remove("active");
-  current = index % slides.length;
-  slides[current].classList.add("active");
-  dots[current].classList.add("active");
-  overlay.style.opacity = "1";
-  heroContent.classList.remove("hidden");
+  return slide;
 }
 
-dots.forEach((dot, i) => dot.addEventListener("click", () => goToSlide(i)));
-setInterval(() => goToSlide(current + 1), 4500);
+function createDot(isFirst) {
+  const dot = document.createElement("span");
+  dot.classList.add("hero__dot");
+  if (isFirst) dot.classList.add("active");
+  return dot;
+}
 
-// UTILS
-function slugify(str) {
-  return str.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+function goToSlide(index, slides, dots) {
+  slides[currentSlide].classList.remove("active");
+  dots[currentSlide].classList.remove("active");
+  currentSlide = index % slides.length;
+  slides[currentSlide].classList.add("active");
+  dots[currentSlide].classList.add("active");
+  DOM.overlay.style.opacity = "1";
+  DOM.heroContent.classList.remove("hidden");
+}
+
+function initCarousel() {
+  CAROUSEL_IMAGES.forEach((url, i) => {
+    DOM.slidesContainer.appendChild(createSlide(url, i === 0));
+    DOM.dotsContainer.appendChild(createDot(i === 0));
+  });
+
+  const slides = document.querySelectorAll(".hero__slide");
+  const dots = document.querySelectorAll(".hero__dot");
+
+  dots.forEach((dot, i) =>
+    dot.addEventListener("click", () => goToSlide(i, slides, dots)),
+  );
+  setInterval(() => goToSlide(currentSlide + 1, slides, dots), 4500);
+}
+
+function getScrollOffset() {
+  const navbarH = document.querySelector(".navbar").offsetHeight;
+  const pillBarH = document.querySelector(".pill-bar").offsetHeight;
+  return navbarH + pillBarH + 16;
 }
 
 function scrollToSection(label) {
   const target = document.getElementById(slugify(label));
   if (!target) return;
-  const navbarHeight = document.querySelector(".navbar").offsetHeight;
-  const pillBarHeight = document.querySelector(".pill-bar").offsetHeight;
-  const offset = navbarHeight + pillBarHeight + 16;
-  const top = target.getBoundingClientRect().top + window.scrollY - offset;
+  const top =
+    target.getBoundingClientRect().top + window.scrollY - getScrollOffset();
   window.scrollTo({ top, behavior: "smooth" });
 }
 
-function formatPrice(amount) {
-  return "₦" + amount.toLocaleString("en-NG") + ".00";
+function createPill(label, isFirst) {
+  const btn = document.createElement("button");
+  btn.className = "pill" + (isFirst ? " active" : "");
+  btn.textContent = label;
+  btn.addEventListener("click", () => onPillClick(btn, label));
+  return btn;
 }
 
-const pillsByTab = { food: [], drinks: [] };
+function onPillClick(btn, label) {
+  document
+    .querySelectorAll(".pill")
+    .forEach((p) => p.classList.remove("active"));
+  btn.classList.add("active");
+  if (DOM.searchInput.value) clearSearch();
+  scrollToSection(label);
+}
 
 function renderPills(tab) {
-  pillBar.innerHTML = "";
+  DOM.pillBar.innerHTML = "";
   pillsByTab[tab].forEach((label, i) => {
-    const btn = document.createElement("button");
-    btn.className = "pill" + (i === 0 ? " active" : "");
-    btn.textContent = label;
-    btn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".pill")
-        .forEach((p) => p.classList.remove("active"));
-      btn.classList.add("active");
-      if (searchInput.value) {
-        searchInput.value = "";
-        searchClear.classList.remove("visible");
-        renderMenu(tab);
-      }
-      scrollToSection(label);
-    });
-    pillBar.appendChild(btn);
+    DOM.pillBar.appendChild(createPill(label, i === 0));
   });
 }
 
-// MENU DATA — populated from CSV
-let menuData = [];
+function clearSearch() {
+  DOM.searchInput.value = "";
+  DOM.searchClear.classList.remove("visible");
+  renderMenu(getActiveTab());
+}
 
-// INTERSECTION OBSERVER
+function onSearchInput() {
+  const query = DOM.searchInput.value;
+  DOM.searchClear.classList.toggle("visible", query.length > 0);
+  renderMenu(getActiveTab(), query);
+}
+
+function filterSection(section, q) {
+  if (!q) return section;
+  if (section.label.toLowerCase().includes(q)) return section;
+  const matchedItems = section.items.filter((item) =>
+    item.name.toLowerCase().includes(q),
+  );
+  return matchedItems.length ? { ...section, items: matchedItems } : null;
+}
+
+function filterSections(tab, q) {
+  return menuData
+    .filter((section) => (q ? true : section.tab === tab))
+    .map((section) => filterSection(section, q))
+    .filter(Boolean);
+}
+
+function createPriceEl(price) {
+  const el = document.createElement("span");
+  el.className = "menu-item__price";
+  el.textContent = formatPrice(price);
+  return el;
+}
+
+function createNameEl(name) {
+  const el = document.createElement("span");
+  el.className = "menu-item__name";
+  el.textContent = name;
+
+  el.addEventListener("click", () => {
+    const isTruncated = el.scrollWidth > el.clientWidth;
+    if (isTruncated || el.classList.contains("expanded")) {
+      el.classList.toggle("expanded");
+    }
+  });
+
+  requestAnimationFrame(() => {
+    if (el.scrollWidth > el.clientWidth) el.classList.add("expandable");
+  });
+
+  return el;
+}
+
+function createMenuItem(item) {
+  const row = document.createElement("div");
+  row.className = "menu-item";
+  const dots = document.createElement("span");
+  dots.className = "menu-item__dots";
+  row.appendChild(createNameEl(item.name));
+  row.appendChild(dots);
+  row.appendChild(createPriceEl(item.price));
+  return row;
+}
+
+function createMenuGrid(items) {
+  const grid = document.createElement("div");
+  grid.className = "menu-grid";
+  [...items]
+    .sort((a, b) => a.price - b.price)
+    .forEach((item) => {
+      grid.appendChild(createMenuItem(item));
+    });
+  return grid;
+}
+
+function createBadge(tab) {
+  const badge = document.createElement("span");
+  badge.className = "menu-section__badge";
+  badge.textContent = tab === "food" ? "FOOD" : "DRINKS";
+  return badge;
+}
+
+function createSectionHeader(section, q) {
+  const header = document.createElement("div");
+  header.className = "menu-section__header";
+  header.textContent = section.label;
+  if (q) header.appendChild(createBadge(section.tab));
+  return header;
+}
+
+function renderSection(section, q) {
+  const sec = document.createElement("div");
+  sec.className = "menu-section";
+  sec.id = slugify(section.label);
+  sec.appendChild(createSectionHeader(section, q));
+  sec.appendChild(createMenuGrid(section.items));
+  sectionObserver.observe(sec);
+  DOM.menuBody.appendChild(sec);
+}
+
+function renderMenu(tab, query = "") {
+  DOM.menuBody.innerHTML = "";
+  const q = query.toLowerCase().trim();
+  const filtered = filterSections(tab, q);
+
+  if (filtered.length === 0) {
+    renderEmpty(query);
+    return;
+  }
+
+  filtered.forEach((section) => renderSection(section, q));
+}
+
+function renderLoading() {
+  DOM.menuBody.innerHTML = `
+    <div class="menu-loading">
+      <div class="menu-loading__spinner"></div>
+      <p class="menu-loading__text">Loading menu...</p>
+    </div>
+  `;
+}
+
+function renderEmpty(query) {
+  DOM.menuBody.innerHTML = `
+    <div class="menu-empty">
+      <div class="menu-empty__icon">🍽</div>
+      <p class="menu-empty__text">No results for "<strong>${query}</strong>"</p>
+      <p class="menu-empty__sub">Try searching by item name or category</p>
+    </div>
+  `;
+}
+
+function renderError() {
+  DOM.menuBody.innerHTML = `
+    <div class="menu-empty">
+      <div class="menu-empty__icon">⚠️</div>
+      <p class="menu-empty__text">Failed to load menu</p>
+      <p class="menu-empty__sub">Please check your connection and refresh the page</p>
+    </div>
+  `;
+}
+
 const sectionObserver = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
@@ -131,98 +295,23 @@ const sectionObserver = new IntersectionObserver(
   { threshold: 0.1 },
 );
 
-// MENU RENDER
-function renderMenu(tab, query = "") {
-  const menuBody = document.getElementById("menuBody");
-  menuBody.innerHTML = "";
+function parseCSVLine(line) {
+  const cols = [];
+  let current = "";
+  let inQuotes = false;
 
-  const q = query.toLowerCase().trim();
-
-  const filtered = menuData
-    .filter((section) => (q ? true : section.tab === tab))
-    .map((section) => {
-      if (!q) return section;
-      const sectionMatches = section.label.toLowerCase().includes(q);
-      if (sectionMatches) return section;
-      const matchedItems = section.items.filter((item) =>
-        item.name.toLowerCase().includes(q),
-      );
-      return matchedItems.length ? { ...section, items: matchedItems } : null;
-    })
-    .filter(Boolean);
-
-  if (filtered.length === 0) {
-    menuBody.innerHTML = `
-      <div class="menu-empty">
-        <div class="menu-empty__icon">🍽</div>
-        <p class="menu-empty__text">No results for "<strong>${query}</strong>"</p>
-        <p class="menu-empty__sub">Try searching by item name or category</p>
-      </div>
-    `;
-    return;
-  }
-
-  filtered.forEach((section) => {
-    const sec = document.createElement("div");
-    sec.className = "menu-section";
-    sec.id = slugify(section.label);
-
-    const header = document.createElement("div");
-    header.className = "menu-section__header";
-    header.textContent = section.label;
-
-    if (q) {
-      const badge = document.createElement("span");
-      badge.className = "menu-section__badge";
-      badge.textContent = section.tab === "food" ? "FOOD" : "DRINKS";
-      header.appendChild(badge);
+  for (const char of line) {
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      cols.push(current.trim());
+      current = "";
+    } else {
+      current += char;
     }
-
-    const grid = document.createElement("div");
-    grid.className = "menu-grid";
-
-    const sortedItems = [...section.items].sort((a, b) => a.price - b.price);
-
-    sortedItems.forEach((item) => {
-      const row = document.createElement("div");
-      row.className = "menu-item";
-
-      const nameEl = document.createElement("span");
-      nameEl.className = "menu-item__name";
-      nameEl.textContent = item.name;
-
-      const dotsEl = document.createElement("span");
-      dotsEl.className = "menu-item__dots";
-
-      const priceEl = document.createElement("span");
-      priceEl.className = "menu-item__price";
-      priceEl.textContent = formatPrice(item.price);
-
-      row.appendChild(nameEl);
-      row.appendChild(dotsEl);
-      row.appendChild(priceEl);
-
-      nameEl.addEventListener("click", () => {
-        const isTruncated = nameEl.scrollWidth > nameEl.clientWidth;
-        if (isTruncated || nameEl.classList.contains("expanded")) {
-          nameEl.classList.toggle("expanded");
-        }
-      });
-
-      requestAnimationFrame(() => {
-        if (nameEl.scrollWidth > nameEl.clientWidth) {
-          nameEl.classList.add("expandable");
-        }
-      });
-
-      grid.appendChild(row);
-    });
-
-    sec.appendChild(header);
-    sec.appendChild(grid);
-    sectionObserver.observe(sec);
-    menuBody.appendChild(sec);
-  });
+  }
+  cols.push(current.trim());
+  return cols;
 }
 
 function parseCSV(text, tab) {
@@ -230,17 +319,13 @@ function parseCSV(text, tab) {
   const sections = {};
 
   lines.forEach((line) => {
-    const cleanLine = line.replace(/\r/g, "");
-    const cols = cleanLine.match(/(".*?"|[^,]+)(?=,|$)/g) || [];
-    const label = cols[0]?.replace(/"/g, "").trim();
-    const name = cols[1]?.replace(/"/g, "").trim();
-    const price = parseInt(
-      cols[2]?.replace(/"/g, "").replace(/,/g, "").trim(),
-      10,
-    );
+    const cols = parseCSVLine(line.replace(/\r/g, ""));
+    const label = cols[0];
+    const name = cols[1];
 
+    const priceRaw = [...cols].reverse().find((c) => c.trim() !== "");
+    const price = parseInt(priceRaw?.replace(/,/g, ""), 10);
     if (!label || !name || isNaN(price)) return;
-
     if (!sections[label]) sections[label] = [];
     sections[label].push({ name, price });
   });
@@ -252,23 +337,64 @@ function parseCSV(text, tab) {
   }));
 }
 
-function showMenuLoading() {
-  document.getElementById("menuBody").innerHTML = `
-    <div class="menu-loading">
-      <div class="menu-loading__spinner"></div>
-      <p class="menu-loading__text">Loading menu...</p>
-    </div>
-  `;
+function createTimeout(ms) {
+  return new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("timeout")), ms),
+  );
 }
 
-function showMenuError() {
-  document.getElementById("menuBody").innerHTML = `
-    <div class="menu-empty">
-      <div class="menu-empty__icon">⚠️</div>
-      <p class="menu-empty__text">Failed to load menu</p>
-      <p class="menu-empty__sub">Please check your connection and refresh the page</p>
-    </div>
-  `;
+async function fetchCSV(url) {
+  const res = await fetch(url);
+  return res.text();
+}
+
+function applyMenuData(foodData, drinksData) {
+  menuData = [...foodData, ...drinksData];
+  pillsByTab.food = foodData.map((s) => s.label);
+  pillsByTab.drinks = drinksData.map((s) => s.label);
+}
+
+function applyFallback() {
+  console.warn("Falling back to local data");
+  menuData = FALLBACK_DATA;
+  pillsByTab.food = FALLBACK_DATA.filter((s) => s.tab === "food").map(
+    (s) => s.label,
+  );
+  pillsByTab.drinks = FALLBACK_DATA.filter((s) => s.tab === "drinks").map(
+    (s) => s.label,
+  );
+}
+
+async function loadMenuData() {
+  renderLoading();
+  try {
+    const [foodText, drinksText] = await Promise.race([
+      Promise.all([fetchCSV(CSV_URLS.food), fetchCSV(CSV_URLS.drinks)]),
+      createTimeout(TIMEOUT_MS),
+    ]);
+
+    const foodData = parseCSV(foodText, "food");
+    const drinksData = parseCSV(drinksText, "drinks");
+
+    if (!foodData.length && !drinksData.length) throw new Error("empty");
+
+    applyMenuData(foodData, drinksData);
+  } catch {
+    applyFallback();
+  }
+
+  renderPills("food");
+  renderMenu("food");
+}
+
+function onTabClick(btn) {
+  DOM.tabs.forEach((t) => t.classList.remove("active"));
+  btn.classList.add("active");
+  const tab = btn.dataset.tab;
+  DOM.searchInput.value = "";
+  DOM.searchClear.classList.remove("visible");
+  renderPills(tab);
+  renderMenu(tab);
 }
 
 const FALLBACK_DATA = [
@@ -341,10 +467,7 @@ const FALLBACK_DATA = [
     label: "Soups",
     items: [
       { name: "Ewedu / Gbegiri", price: 5000 },
-      {
-        name: "Egusi / Okra / Ogbono / Eforiro",
-        price: 15000,
-      },
+      { name: "Egusi / Okra / Ogbono / Eforiro", price: 15000 },
       { name: "Afang / Edikaikong / Bitter Leaf", price: 15000 },
       { name: "Omi-Obe (Assorted)", price: 15000 },
       { name: "Vegetable Soup", price: 20000 },
@@ -398,13 +521,10 @@ const FALLBACK_DATA = [
     tab: "food",
     label: "Fried",
     items: [
-      // { name: "Titus Fish", price: 2500 },
       { name: "Fish (Kote)", price: 3000 },
       { name: "Fish (Titus)", price: 3000 },
-      // { name: "Croaker Fish", price: 3500 },
       { name: "Croaker", price: 4000 },
       { name: "Chicken", price: 4000 },
-      // { name: "Small Size Turkey", price: 4500 },
       { name: "Turkey", price: 8000 },
       { name: "Goat Meat", price: 8000 },
       { name: "Beef", price: 8000 },
@@ -429,8 +549,8 @@ const FALLBACK_DATA = [
       { name: "Fanta", price: 1400 },
       { name: "Pepsi", price: 1400 },
       { name: "Water 150cl", price: 1500 },
-      { name: "Active Chivita", price: 4000 },
       { name: "Predator", price: 3000 },
+      { name: "Active Chivita", price: 4000 },
     ],
   },
   {
@@ -445,8 +565,8 @@ const FALLBACK_DATA = [
       { name: "Big Ice", price: 3000 },
       { name: "Goldberg", price: 3000 },
       { name: "Desperado", price: 3000 },
-      { name: "Black Bullet", price: 4000 },
       { name: "Maltina Stout", price: 3500 },
+      { name: "Black Bullet", price: 4000 },
     ],
   },
   {
@@ -574,83 +694,21 @@ const FALLBACK_DATA = [
   },
 ];
 
-const CSV_URLS = {
-  food: CONFIG.CSV_FOOD,
-  drinks: CONFIG.CSV_DRINKS,
-};
+function init() {
+  applyTheme(getInitialTheme());
+  initCarousel();
+  loadMenuData();
+  DOM.footerYear.textContent = new Date().getFullYear();
 
-async function loadMenuData() {
-  showMenuLoading();
-
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error("timeout")), 5000),
+  DOM.themeToggle.addEventListener("click", toggleTheme);
+  DOM.searchInput.addEventListener("input", onSearchInput);
+  DOM.searchClear.addEventListener("click", clearSearch);
+  DOM.tabs.forEach((btn) =>
+    btn.addEventListener("click", () => onTabClick(btn)),
   );
-
-  try {
-    const [foodRes, drinksRes] = await Promise.race([
-      Promise.all([fetch(CSV_URLS.food), fetch(CSV_URLS.drinks)]),
-      timeout,
-    ]);
-
-    const [foodText, drinksText] = await Promise.all([
-      foodRes.text(),
-      drinksRes.text(),
-    ]);
-
-    const foodData = parseCSV(foodText, "food");
-    const drinksData = parseCSV(drinksText, "drinks");
-
-    if (!foodData.length && !drinksData.length) throw new Error("empty");
-
-    menuData = [...foodData, ...drinksData];
-    pillsByTab.food = foodData.map((s) => s.label);
-    pillsByTab.drinks = drinksData.map((s) => s.label);
-  } catch (err) {
-    console.warn("Falling back to local data:", err.message);
-    menuData = FALLBACK_DATA;
-    pillsByTab.food = FALLBACK_DATA.filter((s) => s.tab === "food").map(
-      (s) => s.label,
-    );
-    pillsByTab.drinks = FALLBACK_DATA.filter((s) => s.tab === "drinks").map(
-      (s) => s.label,
-    );
-  }
-
-  renderPills("food");
-  renderMenu("food");
+  DOM.backToTop.addEventListener("click", () =>
+    window.scrollTo({ top: 0, behavior: "smooth" }),
+  );
 }
 
-// SEARCH
-searchInput.addEventListener("input", () => {
-  const query = searchInput.value;
-  const activeTab = document.querySelector(".tab-btn.active").dataset.tab;
-  searchClear.classList.toggle("visible", query.length > 0);
-  renderMenu(activeTab, query);
-});
-
-searchClear.addEventListener("click", () => {
-  searchInput.value = "";
-  searchClear.classList.remove("visible");
-  const activeTab = document.querySelector(".tab-btn.active").dataset.tab;
-  renderMenu(activeTab);
-});
-
-// TABS
-tabs.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    tabs.forEach((t) => t.classList.remove("active"));
-    btn.classList.add("active");
-    const activeTab = btn.dataset.tab;
-    searchInput.value = "";
-    searchClear.classList.remove("visible");
-    renderPills(activeTab);
-    renderMenu(activeTab);
-  });
-});
-
-// INIT
-loadMenuData();
-document.getElementById("footerYear").textContent = new Date().getFullYear();
-document.getElementById("backToTop").addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+init();
